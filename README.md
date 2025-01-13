@@ -20,3 +20,7 @@
 3) Advanced ML Models
 4) User Interface
 5) Threat Sharing Platform
+
+## Sources
+ - **Training Dataset:** https://www.unb.ca/cic/datasets/ids-2017.html
+    - ***Provider:*** Canadian Institute for Cybersecurity
