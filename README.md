@@ -3,9 +3,9 @@
 ## Minimal Viable Product (MVP) Proposal
 ### MVP Design
 **Threat Detection:** Malicious IP Addresses  
-**Data Storage:** Ganache Block-Chain
-**Model:** Regression
-**UI:** Minimal Web-based visualization Dashboard Likely w/ Angular 
+**Data Storage:** Ganache Block-Chain  
+**Model:** Regression  
+**UI:** Minimal Web-based visualization Dashboard Likely w/ Angular  
 
 ### MVP Deliverables
 1) Ingests network logs or synthetic security data
