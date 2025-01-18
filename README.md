@@ -4,8 +4,8 @@
 ### MVP Design
 **Threat Detection:** Malicious IP Addresses  
 **Data Storage:** Ganache Block-Chain
-**Detection Strategy:** Isolation Forests  
-**UI:** Minimal Web-based visualization Dashboard  
+**Model:** Regression
+**UI:** Minimal Web-based visualization Dashboard Likely w/ Angular 
 
 ### MVP Deliverables
 1) Ingests network logs or synthetic security data
