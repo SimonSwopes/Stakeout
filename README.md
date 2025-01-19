@@ -1,5 +1,7 @@
 # Decentralized AI-Driven Cyber Threat Detection System
 
+![image description](assets/stakeout_logo.jpeg)
+
 ## Overview
 A system for training a model on a dataset of network traffic data to detect cyber threats. The system is to eventually store detected threats in a decentralized secure location. The system is also designed to be AI-driven, with the model being trained using machine learning techniques.
 
