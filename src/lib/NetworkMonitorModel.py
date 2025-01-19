@@ -15,7 +15,7 @@ class NetworkMonitorModel:
 
     def validate(self, threshold: float = 0.5) -> List[str]:
         if not self._validation_data:
-            self.logger.warning("Validate Invoked without validation data. Bypassing...")
+            self.logger.warning("Validate Invoked but NetworkMonitorModel Instance did not receive an instance of NetworkActivityDataStreamer for validation data. Bypassing...")
             return []
 
         self.logger.info("Predicting malicious IPs...")
