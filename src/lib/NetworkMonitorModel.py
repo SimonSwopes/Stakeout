@@ -21,12 +21,21 @@ class NetworkMonitorModel:
         malicious_ips = self._data_streamer.data.query("Prediction == 1")["Source IP"].unique()
 
         self.logger.info("Storing malicious IPs...")
-        self._store_malicious_ips(malicious_ips)
+        self._log_results_summary(malicious_ips)
         return malicious_ips
+    
 
-    def _store_malicious_ips(self, malicious_ips: list) -> None:
+    def _log_results_summary(self, malicious_ips: list) -> None:
+        total_ips = len(self._data_streamer.data["Source IP"].unique())
+        total_malicious_ips = len(malicious_ips)
+        amount_correct = len(self._data_streamer.data.query("Label == 1 and Prediction == 1"))
+        amount_incorrect = len(self._data_streamer.data.query("Label == 0 and Prediction == 1"))
+        self.logger.info(f"{total_malicious_ips} out of {total_ips} predicted as malicious. {amount_correct} were correct and {amount_incorrect} were incorrect.")
+
         log_data = "\n".join(malicious_ips)
         self.logger.write_file("malicious_ips.log", log_data)
+
+
 
     def _train_eval_model(self) -> LogisticRegression:
         self.logger.info("Training model...")
