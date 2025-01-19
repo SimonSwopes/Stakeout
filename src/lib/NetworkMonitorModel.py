@@ -2,6 +2,7 @@ from . import Logger, NetworkActivityDataStreamer
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
+from typing import List
 
 class NetworkMonitorModel:
     def __init__(self, data_streamer: NetworkActivityDataStreamer, logger: Logger):
@@ -9,10 +10,11 @@ class NetworkMonitorModel:
         self.logger = logger
         self._model = self._train_eval_model()
 
-    def predict_malicious_ips(self) -> list:
+    def predict_malicious_ips(self, threshold: float = 0.5) -> List[str]:
         self.logger.info("Predicting malicious IPs...")
         X = self._data_streamer.data[["Flow Duration", "Total Fwd Packets", "Total Backward Packets"]]
-        predictions = self._model.predict(X)
+        probabilities = self._model.predict_proba(X)[:, 1]
+        predictions = (probabilities >= threshold).astype(int) 
 
         self.logger.info("Assigning predictions to data streamer...")
         self._data_streamer.assign_column(Prediction=predictions)
@@ -28,12 +30,18 @@ class NetworkMonitorModel:
     def _log_results_summary(self, malicious_ips: list) -> None:
         total_ips = len(self._data_streamer.data["Source IP"].unique())
         total_malicious_ips = len(malicious_ips)
-        amount_correct = len(self._data_streamer.data.query("Label == 1 and Prediction == 1"))
-        amount_incorrect = len(self._data_streamer.data.query("Label == 0 and Prediction == 1"))
-        self.logger.info(f"{total_malicious_ips} out of {total_ips} predicted as malicious. {amount_correct} were correct and {amount_incorrect} were incorrect.")
-
-        log_data = "\n".join(malicious_ips)
-        self.logger.write_file("malicious_ips.log", log_data)
+    
+        # Compute key metrics
+        true_positives = len(self._data_streamer.data.query("Label == 1 and Prediction == 1"))
+        false_positives = len(self._data_streamer.data.query("Label == 0 and Prediction == 1"))
+        false_negatives = len(self._data_streamer.data.query("Label == 1 and Prediction == 0"))
+    
+        # Precision and Recall
+        precision = true_positives / (true_positives + false_positives) if (true_positives + false_positives) > 0 else 0
+        recall = true_positives / (true_positives + false_negatives) if (true_positives + false_negatives) > 0 else 0
+    
+        self.logger.info(f"{total_malicious_ips} out of {total_ips} predicted as malicious.")
+        self.logger.info(f"Precision: {precision:.2f}, Recall: {recall:.2f}")
 
 
 
@@ -45,7 +53,7 @@ class NetworkMonitorModel:
 
         self.logger.info("Splitting data into training and test sets...")
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
-        model = LogisticRegression()
+        model = LogisticRegression(class_weight="balanced")
         model.fit(X_train, y_train)
 
         self.logger.info("Evaluating model...")
