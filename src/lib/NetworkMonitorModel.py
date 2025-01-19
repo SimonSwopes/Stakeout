@@ -5,49 +5,44 @@ from sklearn.metrics import classification_report
 from typing import List
 
 class NetworkMonitorModel:
-    def __init__(self, data_streamer: NetworkActivityDataStreamer, logger: Logger):
-        self._data_streamer = data_streamer
+    def __init__(self, training_data: NetworkActivityDataStreamer, validation_data: NetworkActivityDataStreamer, logger: Logger):
+        self._training_data = training_data
+        self._validation_data = validation_data
         self.logger = logger
         self._model = self._train_eval_model()
 
-    def predict_malicious_ips(self, threshold: float = 0.5) -> List[str]:
+    def validate(self, threshold: float = 0.5) -> List[str]:
+        if not self._validation_data:
+            self.logger.warning("Validate Invoked without validation data. Bypassing...")
+            return []
+
         self.logger.info("Predicting malicious IPs...")
-        X = self._data_streamer.data[["Flow Duration", "Total Fwd Packets", "Total Backward Packets"]]
+        X = self._validation_data.data[["Flow Duration", "Total Fwd Packets", "Total Backward Packets"]]
+        y_true = self._validation_data.data["Label"]
         probabilities = self._model.predict_proba(X)[:, 1]
         predictions = (probabilities >= threshold).astype(int) 
 
         self.logger.info("Assigning predictions to data streamer...")
-        self._data_streamer.assign_column(Prediction=predictions)
+        self._validation_data.assign_column(Prediction=predictions)
 
+        # Calculate metrics
+        self.logger.info("Evaluating validation performance...")
+        report = classification_report(y_true, predictions, zero_division=1)
+        self.logger.info(f"Validation classification report:\n{report}")
+
+        # Write the report to a file
+        self.logger.write_file("validation_report.log", report)
+
+        # Extract and return malicious IPs
         self.logger.info("Extracting malicious IPs...")
-        malicious_ips = self._data_streamer.data.query("Prediction == 1")["Source IP"].unique()
-
-        self.logger.info("Storing malicious IPs...")
-        self._log_results_summary(malicious_ips)
+        malicious_ips = self._validation_data.data.query("Prediction == 1")["Source IP"].unique()
+        self.logger.info(f"Detected malicious IPs: {len(malicious_ips)}")
         return malicious_ips
     
 
-    def _log_results_summary(self, malicious_ips: list) -> None:
-        total_ips = len(self._data_streamer.data["Source IP"].unique())
-        total_malicious_ips = len(malicious_ips)
-    
-        # Compute key metrics
-        true_positives = len(self._data_streamer.data.query("Label == 1 and Prediction == 1"))
-        false_positives = len(self._data_streamer.data.query("Label == 0 and Prediction == 1"))
-        false_negatives = len(self._data_streamer.data.query("Label == 1 and Prediction == 0"))
-    
-        # Precision and Recall
-        precision = true_positives / (true_positives + false_positives) if (true_positives + false_positives) > 0 else 0
-        recall = true_positives / (true_positives + false_negatives) if (true_positives + false_negatives) > 0 else 0
-    
-        self.logger.info(f"{total_malicious_ips} out of {total_ips} predicted as malicious.")
-        self.logger.info(f"Precision: {precision:.2f}, Recall: {recall:.2f}")
-
-
-
     def _train_eval_model(self) -> LogisticRegression:
         self.logger.info("Training model...")
-        df = self._data_streamer.data
+        df = self._training_data.data
         X = df[['Flow Duration', 'Total Fwd Packets', 'Total Backward Packets']]
         y = df['Label']
 
@@ -59,6 +54,7 @@ class NetworkMonitorModel:
         self.logger.info("Evaluating model...")
         y_pred = model.predict(X_test)
         report = classification_report(y_test, y_pred, zero_division=1)
+        self.logger.info(f"Evaluation Classification report:\n{report}")
         self.logger.write_file("classification_report.log", report)
 
         return model

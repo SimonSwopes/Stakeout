@@ -5,6 +5,7 @@ def main():
 
     parser = ArgumentParser(description="Network Activity Monitor")
     parser.add_argument("-t", "--training", help="Training directory", required=True)
+    parser.add_argument("-v", "--validation", help="Validation directory", default=None)
     parser.add_argument("-o", "--output", help="Output directory", default="logs")
     args = parser.parse_args()
 
@@ -12,10 +13,12 @@ def main():
 
     # Build and run
     logger.info("Building Network Monitor...")
-    monitor = SecureNetworkMonitorBuilder(args.training, args.output).build()
-    logger.info("Detecting malicious IPs...")
-    malicious_ips = monitor.detect_malicious_ips()
-    logger.write_file(f"{args.training.split("\\")[-1]}_malicious_ips.log", f"Malicious IPs found: {malicious_ips}")
+    monitor = SecureNetworkMonitorBuilder(args.training, args.validation, args.output).build()
+
+    if args.validation:
+        logger.info("Validating Network Monitor...")
+        malicious_ips = monitor.detect_malicious_ips()
+        logger.write_file(f"{args.training.split("\\")[-1]}_malicious_ips.log", f"Malicious IPs found: {malicious_ips}")
 
 
 

@@ -1,17 +1,27 @@
 param (
     [Parameter(Mandatory=$true)]
-    [ValidateSet("single", "subset", "all")]
-    [string]$data
+    [ValidateSet("small", "large")]
+    [string]$size,
+    [Parameter(Mandatory=$false)]
+    [ValidateSet("validate")]
+    [string]$validate
 )
 
 # use different path depending on the data option
-if ($data -eq "single") {
-    $path = "data\single"
-} elseif ($data -eq "subset") {
-    $path = "data\subset"
-} elseif ($data -eq "all") {
-    $path = "data\all"
-}
+if ($size -eq "small") {
+    $path = "data\small"
+} elseif ($size -eq "large") {
+    $path = "data\large"
+} else {
+    Write-Host "Invalid size option"
+    exit
+} 
 
-# run the script
-python main.py -t $path
+$training_dir = $path + "\training"
+$validation_dir = $path + "\validation"
+
+if ($validate -eq "validate") {
+    python main.py -t $training_dir -v $validation_dir
+} else {
+    python main.py -t $training_dir
+}
