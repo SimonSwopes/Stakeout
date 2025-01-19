@@ -1,5 +1,6 @@
 from . import Loader
 from . import Logger
+from .constants import *
 from typing import List
 from pandas import DataFrame
 from numpy import random
@@ -21,32 +22,29 @@ class NetworkActivityDataStreamer:
         self._validate_columns(data)
 
         self.logger.info("Synthesizing IP addresses...")
-        data['Source IP'] = self._synthesize_ip(len(data))
-        data['Destination IP'] = self._synthesize_ip(len(data))
+        data[value_column] = self._synthesize_ip(len(data))
 
         self.logger.info("Mapping labels...")
-        data['Label'] = data['Label'].apply(lambda x: 0 if x == 'BENIGN' else 1)
+        data[target_node] = data[target_node].apply(lambda x: 0 if x == positive_label else 1)
 
         self.logger.info("Selecting relevant columns removing missing data...")
-        data = data[['Source IP', 'Destination IP', 'Flow Duration',
-                     'Total Fwd Packets', 'Total Backward Packets', 'Label']]
+        data = data[feature_nodes + [target_node] + [value_column]].copy()
         
         data = data.dropna()
 
         self.logger.info("Normalizing data...")
         scaler = MinMaxScaler()
-        data[['Flow Duration', 'Total Fwd Packets', 'Total Backward Packets']] = \
-            scaler.fit_transform(data[['Flow Duration', 'Total Fwd Packets', 'Total Backward Packets']])
+        data[feature_nodes] = \
+            scaler.fit_transform(data[feature_nodes])
 
         return data
     
     def _validate_columns(self, data: DataFrame) -> None:
         self.logger.info("Validating data columns...")
-        required_cols = ['Flow Duration', 'Total Fwd Packets', 'Total Backward Packets', 'Label']
+        required_cols = feature_nodes + [target_node]
         if not all(col in data.columns for col in required_cols):
-            self.logger.error("Data is in unexpected format. Expected columns: "
-                              "'Flow Duration', 'Total Fwd Packets', 'Total Backward Packets', 'Label'")
-            raise ValueError("Data is in unexpected format. Expected columns: ")
+            self.logger.error(f"Data is in unexpected format. Expected columns: {required_cols}")
+            raise ValueError(f"Data is in unexpected format. Expected columns: {required_cols}")
                              
 
     def _synthesize_ip(self, num: int) -> List[str]:
