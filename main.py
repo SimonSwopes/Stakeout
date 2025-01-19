@@ -18,7 +18,7 @@ def main():
     if args.validation:
         logger.info("Validating Network Monitor...")
         malicious_ips = monitor.detect_malicious_ips()
-        logger.write_file(f"{args.training.split("\\")[-1]}_malicious_ips.log", f"Malicious IPs found: {malicious_ips}")
+        logger.write_file(f"{args.training.split("\\")[-1]}_malicious_ips.log", "\n".join(ip for ip in malicious_ips))
 
 
 

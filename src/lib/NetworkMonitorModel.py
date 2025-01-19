@@ -25,15 +25,11 @@ class NetworkMonitorModel:
         self.logger.info("Assigning predictions to data streamer...")
         self._validation_data.assign_column(Prediction=predictions)
 
-        # Calculate metrics
         self.logger.info("Evaluating validation performance...")
         report = classification_report(y_true, predictions, zero_division=1)
         self.logger.info(f"Validation classification report:\n{report}")
-
-        # Write the report to a file
         self.logger.write_file("validation_report.log", report)
 
-        # Extract and return malicious IPs
         self.logger.info("Extracting malicious IPs...")
         malicious_ips = self._validation_data.data.query("Prediction == 1")["Source IP"].unique()
         self.logger.info(f"Detected malicious IPs: {len(malicious_ips)}")

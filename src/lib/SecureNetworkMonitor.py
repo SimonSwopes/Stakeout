@@ -6,5 +6,5 @@ class SecureNetworkMonitor:
         self._model = model
 
     def detect_malicious_ips(self) -> List[str]:
-        return self._model.validate()
+        return list(self._model.validate())
     
