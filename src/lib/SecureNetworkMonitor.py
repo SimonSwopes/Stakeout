@@ -1,7 +1,7 @@
-from . import RegressionMonitorModel
+from . import NetworkMonitorModel
 
-class ModelNetworkMonitor:
-    def __init__(self, model: RegressionMonitorModel):
+class SecureNetworkMonitor:
+    def __init__(self, model: NetworkMonitorModel):
         self._model = model
 
     def detect_malicious_ips(self):

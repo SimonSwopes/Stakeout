@@ -1,15 +1,15 @@
 from .lib.Logger import Logger
-from .ModelNetworkMonitorBuilder import ModelNetworkMonitorBuilder
-from .lib.ModelNetworkMonitor import ModelNetworkMonitor
+from .SecureNetworkMonitorBuilder import SecureNetworkMonitorBuilder
+from .lib.SecureNetworkMonitor import SecureNetworkMonitor
 from .lib.Loader import Loader
-from .lib.RegressionMonitorModel import RegressionMonitorModel
+from .lib.NetworkMonitorModel import NetworkMonitorModel
 from .lib.NetworkActivityDataStreamer import NetworkActivityDataStreamer
 
 __all__ = [
     'Logger', 
-    'ModelNetworkMonitor', 
-    'ModelNetworkMonitorBuilder',
+    'SecureNetworkMonitor', 
+    'SecureNetworkMonitorBuilder',
     'Loader',
-    'RegressionMonitorModel',
+    'NetworkMonitorModel',
     'NetworkActivityDataStreamer'
 ]

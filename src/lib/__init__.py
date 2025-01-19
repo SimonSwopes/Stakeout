@@ -1,7 +1,7 @@
-from .ModelNetworkMonitor import ModelNetworkMonitor
-from .RegressionMonitorModel import RegressionMonitorModel
+from .SecureNetworkMonitor import SecureNetworkMonitor
+from .NetworkMonitorModel import NetworkMonitorModel
 from .NetworkActivityDataStreamer import NetworkActivityDataStreamer
 from .Loader import Loader
 from .Logger import Logger
 
-__all__ = ["ModelNetworkMonitor", "RegressionMonitorModel", "NetworkActivityDataStreamer", "Loader", "Logger"]
+__all__ = ["SecureNetworkMonitor", "NetworkMonitorModel", "NetworkActivityDataStreamer", "Loader", "Logger"]

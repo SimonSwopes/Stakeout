@@ -3,7 +3,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 
-class RegressionMonitorModel:
+class NetworkMonitorModel:
     def __init__(self, data_streamer: NetworkActivityDataStreamer, logger: Logger):
         self._data_streamer = data_streamer
         self.logger = logger

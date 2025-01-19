@@ -1,5 +1,5 @@
 from argparse import ArgumentParser
-from src import Logger, ModelNetworkMonitorBuilder
+from src import Logger, SecureNetworkMonitorBuilder
 
 def main():
     logger = Logger("logs", "MainLogger")
@@ -11,7 +11,7 @@ def main():
 
     # Build and run
     logger.info("Building Network Monitor...")
-    monitor = ModelNetworkMonitorBuilder(args.training, args.output).build()
+    monitor = SecureNetworkMonitorBuilder(args.training, args.output).build()
     logger.info("Detecting malicious IPs...")
     malicious_ips = monitor.detect_malicious_ips()
     logger.info(f"Malicious IPs found: {malicious_ips}")

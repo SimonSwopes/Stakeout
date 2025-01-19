@@ -1,6 +1,5 @@
 MachineLearningCSV.zip
-Data/
+*.csv
 settings.json
-Tests/
-logs/
+*.log
 __pycache__/
